@@ -131,7 +131,11 @@ Install plugins:
 
 Modify admin password - It will prompt when restart jenkins after installing plugins
 
+Config github repo with jenkins by creating a new pipeline item
 
+Run the build
+
+Add Kaniko stage in Jenkinsfile
 
 
 aws eks update-kubeconfig --name $cluster_name --region us-west-2
