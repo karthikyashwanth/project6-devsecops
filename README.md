@@ -34,7 +34,7 @@ eksctl version
 Create EKS cluster
 
 ```
-eksctl create cluster -f eks-cluster-setup.yaml
+eksctl create cluster -f setup/eks-cluster-setup.yaml
 ```
 
 Let the EKS cluster creation in progress
@@ -132,11 +132,6 @@ Update Complete. ⎈Happy Helming!⎈
 
 ```
 
-```
-k get pvc -n ci
-NAME      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   AGE
-jenkins   Bound    pvc-0a52149f-411e-4f9a-a1f8-ad2d0070fbbc   8Gi        RWO            gp2            11s
-```
 
 Jenkins Installation
 ```
@@ -195,10 +190,6 @@ Create a new Jenkins pipeline with this repo and trigger build
 Allow all in SG eksctl-dev-secops-cluster-nodegroup-ng-2-SG-6nzKi3VwyZve
 
 Access Jenkins 
-
-Install plugins: 
-  Blue Ocean 
-  Configuration as Code Plugin - Groovy Scripting Extension
 
 Modify admin password - It will prompt when restart jenkins after installing plugins
 
