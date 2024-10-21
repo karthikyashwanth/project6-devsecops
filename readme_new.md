@@ -1,4 +1,4 @@
-eksctl installation
+eksctl cli installation for Ubuntu
 ```
 # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
 ARCH=amd64
@@ -16,10 +16,43 @@ sudo mv /tmp/eksctl /usr/local/bin
 eksctl version
 ```
 
+Create EKS cluster
+
 ```
-eksctl create cluster -f dso-cluster-creation.yaml
+eksctl create cluster -f eks-cluster-setup.yaml
 ```
 
+Let the EKS cluster creation in progress
+
+Talisman Installation
+====================
+https://thoughtworks.github.io/talisman/docs
+
+# Download the talisman binary
+curl https://thoughtworks.github.io/talisman/install.sh > ~/install-talisman.sh
+chmod +x ~/install-talisman.sh
+
+# Install to a single project (as pre-push hook)
+cd my-git-project
+~/install-talisman.sh //pre-push hook
+~/install-talisman.sh pre-commit //pre-commit hook
+
+mkdir sec_files && cd sec_files
+echo "username:sidd-harth" > file1
+echo "secure-password1234" > password.txt
+echo "apiKey=Ajbehjruhr82832jcshh3435" > file2
+echo "base64encodedsecret=cDSgwjekrnekrjitut" > file3
+
+git commit 
+git push 
+
+If you want to ignore any file, add it under .talismanrc
+fileignoreconfig:
+- filename:
+  checksum:
+
+
+OIDC is the replacement for using IAM roles or keys to create/modify/update/delete AWS service
 ```
 $ eksctl utils associate-iam-oidc-provider --cluster dev-secops-cluster --approve --region=us-west-2
 2024-10-20 17:49:50 [ℹ]  will create IAM Open ID Connect provider for cluster "dev-secops-cluster" in "us-west-2"
@@ -56,6 +89,8 @@ $ aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/A
 ```
 RefL https://repost.aws/knowledge-center/eks-persistent-storage
 
+
+Create CI/CD namespace
 ```
 k create namespace ci
 namespace/ci created
@@ -74,9 +109,8 @@ $ helm version
 version.BuildInfo{Version:"v3.16.2", GitCommit:"13654a52f7c70a143b1dd51416d633e1071faffb", GitTreeState:"clean", GoVersion:"go1.22.7"}
 
 $ helm repo add jenkins https://charts.jenkins.io
-lm repo update
-"jenkins" has been added to your repositories
-chandika@QB-BLR-1596:~/Desktop/cdit/devsecops-ci$ helm repo update
+
+$ helm repo update
 Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "jenkins" chart repository
 Update Complete. ⎈Happy Helming!⎈
@@ -124,6 +158,7 @@ r0QrC73ql4BqIdMQqUdxQM
 ```
 Allow all in SG eksctl-dev-secops-cluster-nodegroup-ng-2-SG-6nzKi3VwyZve
 
+Access Jenkins 
 
 Install plugins: 
   Blue Ocean 
@@ -131,22 +166,28 @@ Install plugins:
 
 Modify admin password - It will prompt when restart jenkins after installing plugins
 
-Config github repo with jenkins by creating a new pipeline item
+
+kubectl create secret -n ci docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=chandikas --docker-password=xxxxxx --docker-email=erchandika@gmail.com
+
+
+Configure github repo with jenkins by creating a new pipeline item
 
 Run the build
 
+Configure the pipeline to poll every minute
+
 Add Kaniko stage in Jenkinsfile
 
+```
+        stage('OCI image build') {
+          steps {
+            container('kaniko') {
+              sh '/kaniko/executor -f "$(pwd)/Dockerfile" -c "$(pwd)" --insecure --skip-tls-verify --cache=true --destination=docker.io/chandikas/dso-demo --verbosity=debug' 
+              }
+            }
+          }
+```
 
-aws eks update-kubeconfig --name $cluster_name --region us-west-2
-
-kubectl create secret -n ci docker-registry regcred --docker-server=https://hub.docker.com --docker-username=ranjiniganeshan@gmail.com --docker-password=Diehard12
-
-stage('Docker BnP') {
- steps {
- container('kaniko') {
- sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --
-skip-tls-verify --cache=true --destination=docker.io/ranjini/dso-demo'
- }
- }
- }
+Cleanup
+=======
+eksctl delete cluster --name=dev-secops-cluster --region=us-west-2
