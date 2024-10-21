@@ -69,13 +69,13 @@ fileignoreconfig:
 
 OIDC is the replacement for using IAM roles or keys to create/modify/update/delete AWS service
 ```
-$ eksctl utils associate-iam-oidc-provider --cluster dev-secops-cluster --approve --region=us-west-2
+$ eksctl utils associate-iam-oidc-provider --cluster dev-secops-cluster --approve --region=ap-south-1
 2024-10-20 17:49:50 [ℹ]  will create IAM Open ID Connect provider for cluster "dev-secops-cluster" in "us-west-2"
 2024-10-20 17:49:52 [✔]  created IAM Open ID Connect provider for cluster "dev-secops-cluster" in "us-west-2"
 
 $ export cluster_name="dev-secops-cluster" 
 
-$ aws eks describe-cluster --name dev-secops-cluster --query "cluster.identity.oidc.issuer" --output text -region us-west-2
+$ aws eks describe-cluster --name dev-secops-cluster --query "cluster.identity.oidc.issuer" --output text --region ap-south-1
 
 cat <<EOF > trust-policy.json
 {
@@ -104,6 +104,8 @@ $ aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/A
 ```
 RefL https://repost.aws/knowledge-center/eks-persistent-storage
 
+
+$ aws eks create-addon --cluster-name dev-secops-cluster --addon-name aws-ebs-csi-driver --service-account-role-arn arn:aws:iam::909293070315:role/AmazonEKS_EBS_CSI_DriverRole
 
 Create CI/CD namespace
 ```
@@ -135,9 +137,9 @@ Update Complete. ⎈Happy Helming!⎈
 
 Jenkins Installation
 ```
-$ helm install --namespace ci --values jenkins.values.yaml jenkins jenkins/jenkins
+$ helm install --namespace ci --values jenkins-values.yaml jenkins jenkins/jenkins
 NAME: jenkins
-LAST DEPLOYED: Sun Oct 20 19:15:27 2024
+LAST DEPLOYED: Mon Oct 21 18:41:04 2024
 NAMESPACE: ci
 STATUS: deployed
 REVISION: 1
@@ -217,7 +219,7 @@ Add Kaniko stage in Jenkinsfile
 
 Cleanup
 =======
-eksctl delete cluster --name=dev-secops-cluster --region=us-west-2
+eksctl delete cluster --name=dev-secops-cluster --region=ap-south-1
 
 
 
