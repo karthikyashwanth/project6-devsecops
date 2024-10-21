@@ -2,7 +2,5 @@ fileignoreconfig:
 - filename: sec_files/file3
   checksum: 38bcd11bc8f2c9c6347b5fa8309613e94cb12188ee19864c8945bef7fc2ef1c5
 - filename: README.md
-  checksum: 70ad0259b50cbea872a922033e8444dfcff5da91d3ff744867fac1f7cd003f72
-- filename: README.md
   checksum: c3fdf00b5fc71e148a126618addd2d8fba9ac047f535425ddbd5c12961607cf3
 version: ""
