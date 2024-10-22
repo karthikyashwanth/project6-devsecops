@@ -44,7 +44,6 @@ pipeline {
             }
           }
       }
-    }
     stage('Package') {
       parallel {
         stage('Create Jarfile') {
@@ -63,8 +62,6 @@ pipeline {
           }
       }
     }
-
-
     stage('Deploy to Dev') {
       steps {
         // TODO
