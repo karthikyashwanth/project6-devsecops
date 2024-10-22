@@ -4,5 +4,7 @@ fileignoreconfig:
 - filename: README.md
   checksum: 98e8a2cd3b0c74016b42fc8c60fff79983691babacc2d45c58b7982be2a59811
 - filename: setup/eks-cluster-setup.yaml
-  checksum: 7e066ea9e999793950424cdeb18d4ef60cc1a86bfe6fb8e18474cb8ca9badd74
+  checksum: 7e066ea9e999793950424cdeb18d4ef60cc1a86bfe6fb8e18474cb8ca9badd7
+- filename: build-agent.yaml
+  checksum: bd2769fef5d3da2a71d4ed67f0079aaf35fec94010c1e8796aa43a88daaa536e
 version: ""
