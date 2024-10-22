@@ -1,19 +1,18 @@
 {
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Effect": "Allow",
-        "Principal": {
-          "Federated": "arn:aws:iam::909293070315:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/726902B7EB55F793FE333D6D0D3A5C37"
-        },
-        "Action": "sts:AssumeRoleWithWebIdentity",
-        "Condition": {
-          "StringEquals": {
-            "oidc.eks.us-west-2.amazonaws.com/id/726902B7EB55F793FE333D6D0D3A5C37:aud": "sts.amazonaws.com",
-            "oidc.eks.us-west-2.amazonaws.com/id/726902B7EB55F793FE333D6D0D3A5C37:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
-          }
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::909293070315:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/A9AE7E1083947032F5CE5B577FF74DF2"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "oidc.eks.us-east-1.amazonaws.com/id/A9AE7E1083947032F5CE5B577FF74DF2:aud": "sts.amazonaws.com",
+          "oidc.eks.us-east-1.amazonaws.com/id/A9AE7E1083947032F5CE5B577FF74DF2:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
         }
       }
-    ]
-  }
-  
+    }
+  ]
+}

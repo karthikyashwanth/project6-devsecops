@@ -37,45 +37,18 @@ Create EKS cluster
 eksctl create cluster -f setup/eks-cluster-setup.yaml
 ```
 
-Let the EKS cluster creation in progress
-
-Talisman Installation
-====================
-https://thoughtworks.github.io/talisman/docs
-
-# Download the talisman binary
-curl https://thoughtworks.github.io/talisman/install.sh > ~/install-talisman.sh
-chmod +x ~/install-talisman.sh
-
-# Install to a single project (as pre-push hook)
-cd my-git-project
-~/install-talisman.sh //pre-push hook
-~/install-talisman.sh pre-commit //pre-commit hook
-
-mkdir sec_files && cd sec_files
-echo "username:sidd-harth" > file1
-echo "secure-password1234" > password.txt
-echo "apiKey=Ajbehjruhr82832jcshh3435" > file2
-echo "base64encodedsecret=cDSgwjekrnekrjitut" > file3
-
-git commit 
-git push 
-
-If you want to ignore any file, add it under .talismanrc
-fileignoreconfig:
-- filename:
-  checksum:
-
+Node group scale
+```
+eksctl scale nodegroup --cluster=dev-secops-cluster --name=ng-1 --nodes=2
+```
 
 OIDC is the replacement for using IAM roles or keys to create/modify/update/delete AWS service
 ```
-$ eksctl utils associate-iam-oidc-provider --cluster dev-secops-cluster --approve --region=ap-south-1
-2024-10-20 17:49:50 [ℹ]  will create IAM Open ID Connect provider for cluster "dev-secops-cluster" in "us-west-2"
-2024-10-20 17:49:52 [✔]  created IAM Open ID Connect provider for cluster "dev-secops-cluster" in "us-west-2"
+$ eksctl utils associate-iam-oidc-provider --cluster dev-secops-cluster --approve --region=us-east-1
 
 $ export cluster_name="dev-secops-cluster" 
 
-$ aws eks describe-cluster --name dev-secops-cluster --query "cluster.identity.oidc.issuer" --output text --region ap-south-1
+$ aws eks describe-cluster --name dev-secops-cluster --query "cluster.identity.oidc.issuer" --output text --region us-east-1
 
 cat <<EOF > trust-policy.json
 {
@@ -84,13 +57,13 @@ cat <<EOF > trust-policy.json
     {
       "Effect": "Allow",
       "Principal": {
-        "Federated": "arn:aws:iam::909293070315:oidc-provider/oidc.eks.us-west-2.amazonaws.com/id/726902B7EB55F793FE333D6D0D3A5C37"
+        "Federated": "arn:aws:iam::909293070315:oidc-provider/oidc.eks.us-east-1.amazonaws.com/id/A9AE7E1083947032F5CE5B577FF74DF2"
       },
       "Action": "sts:AssumeRoleWithWebIdentity",
       "Condition": {
         "StringEquals": {
-          "oidc.eks.us-west-2.amazonaws.com/id/726902B7EB55F793FE333D6D0D3A5C37:aud": "sts.amazonaws.com",
-          "oidc.eks.us-west-2.amazonaws.com/id/726902B7EB55F793FE333D6D0D3A5C37:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
+          "oidc.eks.us-east-1.amazonaws.com/id/A9AE7E1083947032F5CE5B577FF74DF2:aud": "sts.amazonaws.com",
+          "oidc.eks.us-east-1.amazonaws.com/id/A9AE7E1083947032F5CE5B577FF74DF2:sub": "system:serviceaccount:kube-system:ebs-csi-controller-sa"
         }
       }
     }
@@ -98,7 +71,7 @@ cat <<EOF > trust-policy.json
 }
 EOF
 
-$ aws iam create-role  --role-name AmazonEKS_EBS_CSI_DriverRole  --assume-role-policy-document file://"trust-policy.json"
+$ aws iam create-role  --role-name AmazonEKS_EBS_CSI_DriverRole  --assume-role-policy-document file://"setup/trust-policy.json"
 
 $ aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy --role-name AmazonEKS_EBS_CSI_DriverRole
 ```
@@ -106,6 +79,8 @@ RefL https://repost.aws/knowledge-center/eks-persistent-storage
 
 
 $ aws eks create-addon --cluster-name dev-secops-cluster --addon-name aws-ebs-csi-driver --service-account-role-arn arn:aws:iam::909293070315:role/AmazonEKS_EBS_CSI_DriverRole
+
+
 
 Create CI/CD namespace
 ```
@@ -137,7 +112,7 @@ Update Complete. ⎈Happy Helming!⎈
 
 Jenkins Installation
 ```
-$ helm install --namespace ci --values jenkins-values.yaml jenkins jenkins/jenkins
+$ helm install --namespace ci --values setup/jenkins-values.yaml jenkins jenkins/jenkins
 NAME: jenkins
 LAST DEPLOYED: Mon Oct 21 18:41:04 2024
 NAMESPACE: ci
@@ -179,6 +154,14 @@ Jenkins configuration:
   - Configuration as Code
   - OWASP Dependency-Track
 
+
+- Allow all in SG eksctl-dev-secops-cluster-nodegroup-ng-2-SG-6nzKi3VwyZve
+
+- Access Jenkins 
+
+- Modify admin password - It will prompt when restart jenkins after installing plugins
+
+
 ### New Jenkins Pipeline
 
 Create a new Jenkins pipeline with this repo and trigger build
@@ -189,13 +172,38 @@ Create a new Jenkins pipeline with this repo and trigger build
 - Save
 
 
-Allow all in SG eksctl-dev-secops-cluster-nodegroup-ng-2-SG-6nzKi3VwyZve
-
-Access Jenkins 
-
-Modify admin password - It will prompt when restart jenkins after installing plugins
 
 
+1. Talisman Installation
+====================
+https://thoughtworks.github.io/talisman/docs
+
+# Download the talisman binary
+curl https://thoughtworks.github.io/talisman/install.sh > ~/install-talisman.sh
+chmod +x ~/install-talisman.sh
+
+# Install to a single project (as pre-push hook)
+cd my-git-project
+~/install-talisman.sh //pre-push hook
+~/install-talisman.sh pre-commit //pre-commit hook
+
+mkdir sec_files && cd sec_files
+echo "username:sidd-harth" > file1
+echo "secure-password1234" > password.txt
+echo "apiKey=Ajbehjruhr82832jcshh3435" > file2
+echo "base64encodedsecret=cDSgwjekrnekrjitut" > file3
+
+git commit 
+git push 
+
+If you want to ignore any file, add it under .talismanrc
+fileignoreconfig:
+- filename:
+  checksum:
+
+
+2. Images build using Kaniko
+====================
 kubectl create secret -n ci docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=chandikas --docker-password=xxxxxx --docker-email=erchandika@gmail.com
 
 
@@ -216,6 +224,11 @@ Add Kaniko stage in Jenkinsfile
             }
           }
 ```
+
+3. SCA - OWASP dependency checker
+
+
+
 
 Cleanup
 =======
