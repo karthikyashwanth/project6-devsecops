@@ -1,6 +1,8 @@
 fileignoreconfig:
-- filename: sec_files/file3
-  checksum: 38bcd11bc8f2c9c6347b5fa8309613e94cb12188ee19864c8945bef7fc2ef1c5
+- filename: setup/trust-policy.json
+  checksum: 7e249c8aea3c49eefd010d0a3e4d5d6561edd166490e4efd82e0af299b3b6a22
 - filename: README.md
-  checksum: c3fdf00b5fc71e148a126618addd2d8fba9ac047f535425ddbd5c12961607cf3
+  checksum: 98e8a2cd3b0c74016b42fc8c60fff79983691babacc2d45c58b7982be2a59811
+- filename: setup/eks-cluster-setup.yaml
+  checksum: 7e066ea9e999793950424cdeb18d4ef60cc1a86bfe6fb8e18474cb8ca9badd74
 version: ""
