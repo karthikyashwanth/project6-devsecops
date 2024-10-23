@@ -2,9 +2,7 @@ fileignoreconfig:
 - filename: setup/trust-policy.json
   checksum: 7e249c8aea3c49eefd010d0a3e4d5d6561edd166490e4efd82e0af299b3b6a22
 - filename: setup/eks-cluster-setup.yaml
-  checksum: 7e066ea9e999793950424cdeb18d4ef60cc1a86bfe6fb8e18474cb8ca9badd7
-- filename: Jenkinsfile
-  checksum: 517825d89968d60a93f09c17067a805b0893846eee0ca343af0066cd73250e84
+  checksum: d561c36b2d3d1f0bae718df66b6edf818e3cd0d3d8c98139bf92e86677166e4d
 - filename: README.md
   checksum: 5394759f23c11645508009449ee027d6f9dcfac85feeff90e616b4b8a1698b3f
 - filename: build-agent.yaml
