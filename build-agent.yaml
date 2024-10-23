@@ -48,7 +48,7 @@ spec:
       imagePullPolicy: Always
       command:
         - cat
-tty: true
+      tty: true
   volumes:
     - name: m2
       hostPath:
