@@ -16,6 +16,6 @@ nodeGroups:
   - name: ng-2
     instanceType: t3a.large
     desiredCapacity: 2
-    volumeSize: 10
+    volumeSize: 20
     ssh:
       publicKeyPath: ~/.ssh/id_rsa.pub
