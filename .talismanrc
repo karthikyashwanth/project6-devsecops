@@ -8,5 +8,5 @@ fileignoreconfig:
 - filename: README.md
   checksum: 5394759f23c11645508009449ee027d6f9dcfac85feeff90e616b4b8a1698b3f
 - filename: build-agent.yaml
-  checksum: 8eb325502be2082fbf1165190bc7a3c64e94bec5660df40f910396d4a12b04ae
+  checksum: 90e488e22cb3744e1daaaaac93d1d842c99373c0ae4a2318de52f602eb59f72d
 version: ""
