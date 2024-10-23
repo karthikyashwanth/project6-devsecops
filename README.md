@@ -39,7 +39,12 @@ eksctl create cluster -f setup/eks-cluster-setup.yaml
 
 Node group scale
 ```
-eksctl scale nodegroup --cluster=dev-secops-cluster --name=ng-1 --nodes=2
+eksctl update nodegroup \
+  --cluster=dev-secops-cluster \
+  --name=ng-1 \
+  --desired=3 \
+  --min-size=2 \
+  --max-size=3
 ```
 
 OIDC is the replacement for using IAM roles or keys to create/modify/update/delete AWS service
@@ -140,10 +145,17 @@ https://jenkins.io/projects/jcasc/
 NOTE: Consider using a custom image with pre-installed plugins
 ```
 
+- Allow port of jenkins service in nodegroup SG
+
+- Access Jenkins 
+
 ```
 $ kubectl exec --namespace ci -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
 r0QrC73ql4BqIdMQqUdxQM
 ```
+
+- Modify admin password - It will prompt when restart jenkins after installing plugins
+
 
 Jenkins configuration:
 =====================
@@ -152,14 +164,8 @@ Jenkins configuration:
 
   - BlueOcean
   - Configuration as Code
-  - OWASP Dependency-Track
 
 
-- Allow all in SG eksctl-dev-secops-cluster-nodegroup-ng-2-SG-6nzKi3VwyZve
-
-- Access Jenkins 
-
-- Modify admin password - It will prompt when restart jenkins after installing plugins
 
 
 ### New Jenkins Pipeline
@@ -225,14 +231,87 @@ Add Kaniko stage in Jenkinsfile
           }
 ```
 
-3. SCA - OWASP dependency checker
+3. SCA - OWASP dependency checker, OSS license checker, SBOM using cyclonedx
+
+stage(‘Static Analysis’) {
+      parallel {
+        stage('Unit Tests') {
+          steps {
+            container('maven') {
+              sh 'mvn test'
+            }
+          }
+        }
+        stage('SCA') {
+          steps {
+            container('maven') {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+              sh 'mvn org.owasp:dependency-check-maven:check'
+              }
+            }
+          }
+          post {
+            always {
+              archiveArtifacts allowEmptyArchive: true, artifacts: 'target/dependency-check-report.html', fingerprint: true, onlyIfSuccessful: true
+              // dependencyCheckPublisher pattern: 'report.xml'
+                }
+              }
+            }
+        stage('OSS License Checker') {
+          steps {
+            container('licensefinder') {
+              sh 'ls -al'
+              sh '''#!/bin/bash --login
+                    /bin/bash --login
+                    rvm use default
+                    gem install license_finder
+                    license_finder
+                    '''
+                        }
+                      }
+                  }
+          }
+      }
+
+4. Lint and Scan Docker image
+    Lint using dockle - Check Dockerfiles/images for best practices, Image efficiency, and maintainability
+      Best practises:
+        Base image minimal
+        Use official images
+        Layer optimization
+        Caching Efficiently
+        Multistage Dockerfile
+        
+
+    Scan using trivy - Scan Docker images for security vulnerabilities and risks
+      Running as non-root user
+      Limit Ports and Privileges
+      Avoid latest Tags
+
+    
+    Docker run after multistage pipeline and nonroot user
+      docker run --rm -v $(pwd):/app bitnami/trivy image --exit-code 1 xxxxxx/dsodemo:multistage
+      docker run --rm goodwithtech/dockle:v${DOCKLE_LATEST} docker.io/xxxxxx/dsodemo:multistage
+    
+
+5. Deploy using ArgoCD
 
 
+<!-- For SBOM - Think about it
 
+helm repo add evryfs-oss https://evryfs.github.io/helm-charts/
+helm repo update
+kubectl create namespace dependency-track
+
+helm install dependency-track --values setup/deptrack-values.yaml --namespace dependency-track evryfs-oss/dependency-track
+helm list -n dependency-track
+kubectl get all -n dependency-track
+
+kubectl get pods -n dependency-track --All pods should be running -->
 
 Cleanup
 =======
-eksctl delete cluster --name=dev-secops-cluster --region=ap-south-1
+eksctl delete cluster --name=dev-secops-cluster --region=us-east-1
 
 
 
