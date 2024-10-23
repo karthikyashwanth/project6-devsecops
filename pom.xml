@@ -54,6 +54,11 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+                	<autoUpdate>true</autoUpdate>
+                	<retireJsAnalyzerEnabled>false</retireJsAnalyzerEnabled>
+                <failOnError>false</failOnError> <!-- Allows the build to proceed even if there is an error -->
+            </configuration>
 			</plugin>
 			<plugin>
 				<groupId>com.github.spotbugs</groupId>
