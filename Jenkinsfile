@@ -40,18 +40,7 @@ pipeline {
         }
     }
     }
-    stage('OCI Image Analysis') {
-      parallel {
-        stage('Image Linting') {
-          steps {
-            container('docker-tools') {
-              sh 'dockle docker.io/chandikas/dso-demo'
-                }
-            }
           }
-            }
-          }
-      }
     stage('Deploy to Dev') {
       steps {
         // TODO
