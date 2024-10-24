@@ -40,12 +40,12 @@ pipeline {
         }
     }
     }
-          }
     stage('Deploy to Dev') {
       steps {
         // TODO
         sh "echo done"
       }
+    }
     }
   }
 
