@@ -6,7 +6,7 @@ fileignoreconfig:
 - filename: setup/eks-cluster-setup.yaml
   checksum: 9fd19bcad84c8c974f70d8e1f92177407035975d6de1415472d32ccfb6a1aa8a
 - filename: Jenkinsfile
-  checksum: 77165302fc7abef583bf59dca79cd2108dd8e13fd1cb09264ab35268de13a5bd
+  checksum: 59349e17b6cbbf15ee383f1a1bf1986cb1848e76d4e5e35c99569082371b037e
 - filename: build-agent.yaml
   checksum: fde48dbc4002b5376dc01fd731099464d10622405a4a09f073fda4def088e3df
 - filename: Jenkinsfile_original
