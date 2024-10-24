@@ -88,17 +88,11 @@ pipeline {
           steps {
             container('docker-tools') {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  sh 'trivy image --exit-code 1 -format json --output trivy-report.json docker.io/chandikas/dso-demo'
+                  sh 'trivy image --exit-code 1 docker.io/chandikas/dso-demo'
                       }              
                   }
               }
-          post {
-            always {
-              // Archive the Trivy report as an artifact
-             archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
-                }
-              }
-            }
+                      }
           }
       }
     stage('Deploy to Dev') {
