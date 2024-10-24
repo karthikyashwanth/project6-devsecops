@@ -75,6 +75,32 @@ pipeline {
           }
     }
     }
+    stage('OCI Image Analysis') {
+      parallel {
+        stage('Image Linting') {
+          steps {
+            container('docker-tools') {
+              sh 'dockle docker.io/chandikas/dso-demo'
+                }
+            }
+          }
+        stage('Image Scan') {
+          steps {
+            container('docker-tools') {
+              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+                  sh 'trivy image --exit-code 1 -format json --output trivy-report.json docker.io/chandikas/dso-demo'
+                      }              
+                  }
+              }
+          post {
+            always {
+              // Archive the Trivy report as an artifact
+             archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
+                }
+              }
+            }
+          }
+      }
     stage('Deploy to Dev') {
       steps {
         // TODO
