@@ -14,7 +14,7 @@ nodeGroups:
     ssh:
       allow: true # will use ~/.ssh/id_rsa.pub as the default ssh key
   - name: ng-2
-    instanceType: t4g.xlarge
+    instanceType: t3a.xlarge
     desiredCapacity: 2
     volumeSize: 20
     ssh:

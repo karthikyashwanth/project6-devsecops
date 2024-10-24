@@ -327,6 +327,9 @@ kubectl get ns
 kubectl create ns dev
 kubectl get ns
 
+kubectl exec --namespace dev -it svc/dso-demo -c dso-demo-cccbfd45d-vpjgq -- /bin/bash
+
+
 
 <!-- For SBOM - Think about it
 
