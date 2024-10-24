@@ -8,7 +8,7 @@ fileignoreconfig:
 - filename: build-agent.yaml
   checksum: fde48dbc4002b5376dc01fd731099464d10622405a4a09f073fda4def088e3df
 - filename: Jenkinsfile
-  checksum: 23566a3416f4c3bc7407bd64b0399b5b3bd8858c98d1a8f5ee3c77f1456aa899
+  checksum: ffc040424e869aa517a1698a66f2913069ab33b78eac79b2911b7ab5d3531c46
 - filename: Jenkinsfile_original
   checksum: 70270f9b5f7380988fd107c082eef565f8f207c445bbe9be405773659e216b21
   version: ""

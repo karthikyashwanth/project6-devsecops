@@ -296,6 +296,37 @@ stage(‘Static Analysis’) {
 
 5. Deploy using ArgoCD
 
+kubectl create namespace argocd
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+
+
+kubectl -n argocd patch secret argocd-secret -p '{"stringData": {"admin.password": "$2a$12$qurzRi7xk0Q6nvGfve6BlOUW68NcbLo3vvUGYs/q9AzHjwgAnzcTS","admin.passwordMtime": "'$(date +%FT%T%Z)'"}}'
+
+kubectl get all -n argocd
+
+kubectl patch svc argocd-server -n argocd --patch '{"spec": { "type": "NodePort", "ports": [ { "nodePort": 32100, "port": 443, "protocol": "TCP", "targetPort": 8080 } ] } }'
+
+
+kubectl get svc -n argocd
+
+kubectl get nodes -o wide
+
+Browser to  https://NODEIP:32100
+
+mkdir deploy
+
+kubectl create deployment dso-demo --image=chandikas/dso-demo --replicas=1 --port=8080 --dry-run=client -o yaml | tee deploy/dso-demo-deploy.yaml
+
+kubectl create service nodeport dso-demo --tcp=8080 --node-port=30080 --dry-run -o yaml | tee deploy/dso-demo-svc.yaml
+
+git add deploy/dso-demo-deploy.yaml deploy/dso-demo-svc.yaml
+git commit -am "add k8s manifests to deploy dso-demo app"
+git push origin main
+
+kubectl get ns
+kubectl create ns dev
+kubectl get ns
+
 
 <!-- For SBOM - Think about it
 
@@ -311,8 +342,11 @@ kubectl get pods -n dependency-track --All pods should be running -->
 
 Cleanup
 =======
-eksctl delete cluster --name=dev-secops-cluster --region=us-east-1
+kubectl get pdb -n kube-system
+kubectl delete pdb -n kube-system coredns
+kubectl delete pdb -n kube-system ebs-csi-controller
 
+eksctl delete cluster --name=dev-secops-cluster --region=us-east-1
 
 
 # Pipeline
