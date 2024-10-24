@@ -95,7 +95,7 @@ pipeline {
                       }              
                   }
               }
-                      }
+            }
           }
       }
     stage('Deploy to Dev') {
@@ -105,11 +105,9 @@ pipeline {
         steps {
             container('docker-tools') {
                 sh 'docker run -t schoolofdevops/argocd-cli argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-                sh 'docker run -t schoolofdevops/argocd-cli argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token 
-                $AUTH_TOKEN'
+                sh 'docker run -t schoolofdevops/argocd-cli argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
                 }
             }
             }
     }
   }
-
