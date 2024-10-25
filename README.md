@@ -331,7 +331,7 @@ kubectl patch cm -n argocd argocd-cm --patch-file setup/argocd_create_user-patch
 
 kubectl describe cm -n argocd argocd-cm
 
-argocd admin settings rbac validate --policy-file jenkins.argorbacpolicy.csv
+argocd admin settings rbac validate --policy-file setup/jenkins.argorbacpolicy.csv
 
 
 kubectl patch cm -n argocd argocd-rbac-cm --patch-file setup/argocd_user_rbac-patch.yaml
@@ -343,8 +343,8 @@ curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/dow
 sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 
- argocd login 34.205.144.35:31296
- argocd cluster list
+argocd login  34.205.144.35:31296
+argocd cluster list
 argocd admin settings rbac validate --policy-file setup/jenkins.argorbacpolicy.csv
 
 argocd admin settings rbac can jenkins get applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
@@ -352,7 +352,7 @@ Yes
 
 argocd admin settings rbac can jenkins delete applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
 argocd admin settings rbac can jenkins sync applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
-argocd admin settings rbac can jenkins get projects devsecops --policy-file setup/jenkins.argorbacpolicy.csv 
+argocd admin settings rbac can jenkins get projects project6-devsecops --policy-file setup/jenkins.argorbacpolicy.csv 
 
 
 kubectl patch cm -n argocd argocd-rbac-cm --patch-file setup/argocd_user_rbac-patch.yaml
@@ -361,9 +361,8 @@ kubectl describe cm -n argocd argocd-rbac-cm
 
 argocd account generate-token --account jenkins
 
-argocd app sync devsecops --insecure --server 34.205.144.35:31296 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTc5MzYxOSwiaWF0IjoxNzI5NzkzNjE5LCJqdGkiOiIzM2Q2YmUzOC00OTlhLTQxZDEtYTI2NC1mNDE2MDU2OWUwOWUifQ.KBoQA7Xe5RGK-b_HQx0llVB96CAqcOZTCi5nRmCVukk
+argocd app sync devsecops --insecure --server 44.212.93.103:32100 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTgzNTA2MSwiaWF0IjoxNzI5ODM1MDYxLCJqdGkiOiJkMDhmMTBhZC1kNzc5LTQ0YWQtYjFmNC1jMjYxMmJkZDhkM2IifQ.Wpc1JpHbnH0OuD-2rOQ-vdExG6eaVnIIfHlU3uI9YvM
 
-argocd app sync project6-devsecops/devsecops --insecure --server 34.205.144.35:31296 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTc5MzYxOSwiaWF0IjoxNzI5NzkzNjE5LCJqdGkiOiIzM2Q2YmUzOC00OTlhLTQxZDEtYTI2NC1mNDE2MDU2OWUwOWUifQ.KBoQA7Xe5RGK-b_HQx0llVB96CAqcOZTCi5nRmCVukk
 
 
 <!-- For SBOM - Think about it
