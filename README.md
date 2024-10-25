@@ -51,8 +51,6 @@ OIDC is the replacement for using IAM roles or keys to create/modify/update/dele
 ```
 $ eksctl utils associate-iam-oidc-provider --cluster dev-secops-cluster --approve --region=us-east-1
 
-$ export cluster_name="dev-secops-cluster" 
-
 $ aws eks describe-cluster --name dev-secops-cluster --query "cluster.identity.oidc.issuer" --output text --region us-east-1
 
 cat <<EOF > trust-policy.json
@@ -363,7 +361,9 @@ kubectl describe cm -n argocd argocd-rbac-cm
 
 argocd account generate-token --account jenkins
 
-argocd app sync dso-demo --insecure --server xxx.xxx.xxx.xxx:32100 --auth-token XXXXXX
+argocd app sync devsecops --insecure --server 34.205.144.35:31296 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTc5MzYxOSwiaWF0IjoxNzI5NzkzNjE5LCJqdGkiOiIzM2Q2YmUzOC00OTlhLTQxZDEtYTI2NC1mNDE2MDU2OWUwOWUifQ.KBoQA7Xe5RGK-b_HQx0llVB96CAqcOZTCi5nRmCVukk
+
+argocd app sync project6-devsecops/devsecops --insecure --server 34.205.144.35:31296 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTc5MzYxOSwiaWF0IjoxNzI5NzkzNjE5LCJqdGkiOiIzM2Q2YmUzOC00OTlhLTQxZDEtYTI2NC1mNDE2MDU2OWUwOWUifQ.KBoQA7Xe5RGK-b_HQx0llVB96CAqcOZTCi5nRmCVukk
 
 
 <!-- For SBOM - Think about it

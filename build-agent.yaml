@@ -43,6 +43,11 @@ spec:
       command:
         - cat
       tty: true
+    - name: argocli
+      image: schoolofdevops/argocd-cli
+      command:
+        - cat
+      tty: true
     # - name: slscan
     #   image: shiftleft/sast-scan
     #   imagePullPolicy: Always

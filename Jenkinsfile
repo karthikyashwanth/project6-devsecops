@@ -103,11 +103,11 @@ pipeline {
         AUTH_TOKEN = credentials('argocd-deployer-token')
             }
         steps {
-            container('docker-tools') {
-                sh 'docker run -t schoolofdevops/argocd-cli argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-                sh 'docker run -t schoolofdevops/argocd-cli argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+            container('argocli') {
+                sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
                 }
-            }
+                }
             }
     }
   }

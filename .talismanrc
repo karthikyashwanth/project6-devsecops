@@ -1,14 +1,16 @@
 fileignoreconfig:
 - filename: setup/trust-policy.json
   checksum: 7e249c8aea3c49eefd010d0a3e4d5d6561edd166490e4efd82e0af299b3b6a22
-- filename: README.md
-  checksum: aa4ff65c1d17baef474f2eb9a3f28d416bf18f47267166e9de21173aef652233
 - filename: setup/eks-cluster-setup.yaml
   checksum: 9fd19bcad84c8c974f70d8e1f92177407035975d6de1415472d32ccfb6a1aa8a
+- filename: README.md
+  checksum: 26d6d5c71b04ebf6a66f6fbe81da89e160b5a9366ede9077579cf1b0d4ea6046
+- filename: argocd-linux-amd64
+  checksum: 1c4b249a6f736bade786b4eed67e20e239930348af554ae393d0bc79e40401ac
 - filename: Jenkinsfile
-  checksum: 59349e17b6cbbf15ee383f1a1bf1986cb1848e76d4e5e35c99569082371b037e
+  checksum: 7168cfa61b7a43c4995fb6f64f29a20d16cf49279df8cc57ccbce03da4171382
 - filename: build-agent.yaml
-  checksum: fde48dbc4002b5376dc01fd731099464d10622405a4a09f073fda4def088e3df
+  checksum: e86a885718e456410945a997b9871efc3e9c2c3f80309b07644d09821a4e5831
 - filename: Jenkinsfile_original
   checksum: 70270f9b5f7380988fd107c082eef565f8f207c445bbe9be405773659e216b21
   version: ""
