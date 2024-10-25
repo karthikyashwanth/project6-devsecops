@@ -6,9 +6,9 @@ fileignoreconfig:
 - filename: argocd-linux-amd64
   checksum: 1c4b249a6f736bade786b4eed67e20e239930348af554ae393d0bc79e40401ac
 - filename: README.md
-  checksum: e943dd007558048d8b31299f75877bd0f5007d2fd207c52a075c7b9a9919328e
+  checksum: 2f9d400ece0cfab15c14985b4943a77ff03bf9a6df43e32b6d0abd23e02392e7
 - filename: Jenkinsfile
-  checksum: 2d84fb446480ad03da40de769f9c584e9a644d71bb5c688be5ca8a1856167bcf
+  checksum: 628ae9ba8496642aedaf85b113d29d7c7f372e3b421e6129ac61cf89dff9912f
 - filename: build-agent.yaml
   checksum: e86a885718e456410945a997b9871efc3e9c2c3f80309b07644d09821a4e5831
 - filename: Jenkinsfile_original
