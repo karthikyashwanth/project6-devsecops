@@ -1,6 +1,6 @@
 pipeline {
   environment {
-        ARGO_SERVER = '44.212.93.103:32100'
+        ARGO_SERVER = '3.222.215.247:32100'
         }
   agent {
     kubernetes {
@@ -98,16 +98,16 @@ pipeline {
             }
           }
       }
-    // stage('Deploy to Dev') {
-    //   environment {
-    //     AUTH_TOKEN = credentials('argocd-deployer-token')
-    //         }
-    //     steps {
-    //         container('argocli') {
-    //             sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-    //             sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-    //             }
-    //             }
-    //         }
+    stage('Deploy to Dev') {
+      environment {
+        AUTH_TOKEN = credentials('argocd-deployer-token')
+            }
+        steps {
+            container('argocli') {
+                sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                }
+                }
+            }
     }
   }
