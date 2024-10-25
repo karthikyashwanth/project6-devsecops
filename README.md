@@ -175,6 +175,10 @@ Create a new Jenkins pipeline with this repo and trigger build
 - Choose git as SCM and provide repo details
 - Save
 
+Create secret of dockerHub
+
+kubectl create secret -n ci docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=chandikas --docker-password=xxxxx --docker-email=xxxxxx@gmail.com
+
 
 
 
@@ -321,11 +325,15 @@ git add deploy/dso-demo-deploy.yaml deploy/dso-demo-svc.yaml
 git commit -am "add k8s manifests to deploy dso-demo app"
 git push origin main
 
-kubectl get ns
 kubectl create ns dev
 kubectl get ns
 
-
+argocli installation
+=======
+VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
+curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
+sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+rm argocd-linux-amd64
 
 kubectl patch cm -n argocd argocd-cm --patch-file setup/argocd_create_user-patch.yaml
 
@@ -333,15 +341,8 @@ kubectl describe cm -n argocd argocd-cm
 
 argocd admin settings rbac validate --policy-file setup/jenkins.argorbacpolicy.csv
 
-
 kubectl patch cm -n argocd argocd-rbac-cm --patch-file setup/argocd_user_rbac-patch.yaml
 kubectl describe cm -n argocd argocd-rbac-cm
-
-
-VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
-curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
-sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
-rm argocd-linux-amd64
 
 argocd login  34.205.144.35:31296
 argocd cluster list
@@ -349,8 +350,8 @@ argocd admin settings rbac validate --policy-file setup/jenkins.argorbacpolicy.c
 
 argocd admin settings rbac can jenkins get applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
 Yes
-
 argocd admin settings rbac can jenkins delete applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
+No
 argocd admin settings rbac can jenkins sync applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
 argocd admin settings rbac can jenkins get projects project6-devsecops --policy-file setup/jenkins.argorbacpolicy.csv 
 
@@ -363,19 +364,9 @@ argocd account generate-token --account jenkins
 
 argocd app sync devsecops --insecure --server 44.212.93.103:32100 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTgzNTA2MSwiaWF0IjoxNzI5ODM1MDYxLCJqdGkiOiJkMDhmMTBhZC1kNzc5LTQ0YWQtYjFmNC1jMjYxMmJkZDhkM2IifQ.Wpc1JpHbnH0OuD-2rOQ-vdExG6eaVnIIfHlU3uI9YvM
 
+SAST - slscan or sonarqube scan
+DAST - OWASP zap
 
-
-<!-- For SBOM - Think about it
-
-helm repo add evryfs-oss https://evryfs.github.io/helm-charts/
-helm repo update
-kubectl create namespace dependency-track
-
-helm install dependency-track --values setup/deptrack-values.yaml --namespace dependency-track evryfs-oss/dependency-track
-helm list -n dependency-track
-kubectl get all -n dependency-track
-
-kubectl get pods -n dependency-track --All pods should be running -->
 
 Cleanup
 =======
@@ -422,4 +413,3 @@ Refer the below screenshot for the stages in the pipeline
 ### TODO
 
 Image Malware scanning - [ClamAV](https://github.com/openbridge/clamav)
-

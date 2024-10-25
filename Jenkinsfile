@@ -98,16 +98,16 @@ pipeline {
             }
           }
       }
-    stage('Deploy to Dev') {
-      environment {
-        AUTH_TOKEN = credentials('argocd-deployer-token')
-            }
-        steps {
-            container('argocli') {
-                sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-                sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-                }
-                }
-            }
+    // stage('Deploy to Dev') {
+    //   environment {
+    //     AUTH_TOKEN = credentials('argocd-deployer-token')
+    //         }
+    //     steps {
+    //         container('argocli') {
+    //             sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+    //             sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+    //             }
+    //             }
+    //         }
     }
   }
