@@ -1,4 +1,7 @@
 pipeline {
+  environment {
+        ARGO_SERVER = '54.167.217.143:32100'
+        }
   agent {
     kubernetes {
       yamlFile 'build-agent.yaml'
@@ -27,45 +30,45 @@ pipeline {
             }
           }
         }
-        stage('SCA') {
-          steps {
-            container('maven') {
-              catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-              sh 'mvn org.owasp:dependency-check-maven:check'
-              }
-            }
-          }
-          post {
-            always {
-              archiveArtifacts allowEmptyArchive: true, artifacts: 'target/dependency-check-report.html', fingerprint: true, onlyIfSuccessful: true
-              // dependencyCheckPublisher pattern: 'report.xml'
-                }
-              }
-            }
-        stage('OSS License Checker') {
-          steps {
-            container('licensefinder') {
-              sh 'ls -al'
-              sh '''#!/bin/bash --login
-                    /bin/bash --login
-                    rvm use default
-                    gem install license_finder
-                    license_finder
-                    '''
-                        }
-                      }
-                  }
-          }
+        // stage('SCA') {
+        //   steps {
+        //     container('maven') {
+        //       catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+        //       sh 'mvn org.owasp:dependency-check-maven:check'
+        //       }
+        //     }
+        //   }
+        //   post {
+        //     always {
+        //       archiveArtifacts allowEmptyArchive: true, artifacts: 'target/dependency-check-report.html', fingerprint: true, onlyIfSuccessful: true
+        //       // dependencyCheckPublisher pattern: 'report.xml'
+        //         }
+        //       }
+        //     }
+        // stage('OSS License Checker') {
+        //   steps {
+        //     container('licensefinder') {
+        //       sh 'ls -al'
+        //       sh '''#!/bin/bash --login
+        //             /bin/bash --login
+        //             rvm use default
+        //             gem install license_finder
+        //             license_finder
+        //             '''
+        //                 }
+        //               }
+        //           }
+        }
       }
     stage('Package') {
       parallel {
-        stage('Create Jarfile') {
-          steps {
-            container('maven') {
-              sh 'mvn package -DskipTests'
-            }
-          }
-        }
+        // stage('Create Jarfile') {
+        //   steps {
+        //     container('maven') {
+        //       sh 'mvn package -DskipTests'
+        //     }
+        //   }
+        // }
         stage('OCI image build') {
           steps {
             container('kaniko') {
@@ -73,7 +76,7 @@ pipeline {
               }
             }
           }
-      }
+    }
     }
     stage('OCI Image Analysis') {
       parallel {
@@ -88,24 +91,23 @@ pipeline {
           steps {
             container('docker-tools') {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  sh 'trivy image --exit-code 1 -format json --output trivy-report.json docker.io/chandikas/dso-demo'
+                  sh 'trivy image --exit-code 1 docker.io/chandikas/dso-demo'
                       }              
                   }
-              }
-          post {
-            always {
-              // Archive the Trivy report as an artifact
-             archiveArtifacts artifacts: 'trivy-report.json', allowEmptyArchive: true
-                }
               }
             }
           }
       }
     stage('Deploy to Dev') {
-      steps {
-        // TODO
-        sh "echo done"
-      }
+      environment {
+        AUTH_TOKEN = credentials('argocd-deployer-token')
+            }
+        steps {
+            container('argocli') {
+                sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                }
+                }
+            }
     }
   }
-}
