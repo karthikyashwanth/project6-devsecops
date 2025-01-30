@@ -5,6 +5,10 @@ Sample spring application with Jenkins pipeline script to demonstrate secure pip
 
 ![DevSecOps Pipeline](https://wac-cdn.atlassian.com/dam/jcr:5f26d67b-bed6-4be1-912b-4032de4d06b0/devsecops-diagram.png?cdnVersion=2318)
 
+## Tools
+CI: Jenkins
+CD: ArgoCD
+Hosting service: EKS cluster
 
 ## Pre Requesites
 
@@ -81,9 +85,10 @@ $ aws iam attach-role-policy --policy-arn arn:aws:iam::aws:policy/service-role/A
 RefL https://repost.aws/knowledge-center/eks-persistent-storage
 
 
-$ aws eks create-addon --cluster-name dev-secops-cluster --addon-name aws-ebs-csi-driver --service-account-role-arn arn:aws:iam::909293070315:role/AmazonEKS_EBS_CSI_DriverRole
+$ aws eks create-addon --cluster-name dev-secops-cluster --addon-name aws-ebs-csi-driver --service-account-role-arn arn:aws:iam::909293070315:role/AmazonEKS_EBS_CSI_DriverRole  --region=us-east-1
 
 
+## Setting Up Jenkins 
 
 Create CI/CD namespace
 ```
@@ -109,7 +114,6 @@ $ helm repo update
 Hang tight while we grab the latest from your chart repositories...
 ...Successfully got an update from the "jenkins" chart repository
 Update Complete. ⎈Happy Helming!⎈
-
 ```
 
 
@@ -150,6 +154,11 @@ NOTE: Consider using a custom image with pre-installed plugins
 ```
 $ kubectl exec --namespace ci -it svc/jenkins -c jenkins -- /bin/cat /run/secrets/additional/chart-admin-password && echo
 r0QrC73ql4BqIdMQqUdxQM
+
+or 
+
+$ kubectl exec --namespace ci -it svc/jenkins -c jenkins -- /bin/bash
+cat /run/secrets/additional/chart-admin-password && echo
 ```
 
 - Modify admin password - It will prompt when restart jenkins after installing plugins
@@ -158,10 +167,11 @@ r0QrC73ql4BqIdMQqUdxQM
 Jenkins configuration:
 =====================
 
-- Add additonal plugins to Jeninks server (Manage Jenkins -> Manage plugins)
+- Add additonal plugins to Jenkins server (Manage Jenkins -> Manage plugins)
 
   - BlueOcean
   - Configuration as Code
+  - Pipeline view
 
 
 
@@ -174,6 +184,7 @@ Create a new Jenkins pipeline with this repo and trigger build
 - Under pipeline section, Choose Pipeline script from SCM
 - Choose git as SCM and provide repo details
 - Save
+- Create webhook in Github >> Webhook URL is jenkinsURL/github-webhook
 
 Create secret of dockerHub
 
@@ -210,30 +221,8 @@ fileignoreconfig:
   checksum:
 
 
-2. Images build using Kaniko
-====================
-kubectl create secret -n ci docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=chandikas --docker-password=xxxxxx --docker-email=erchandika@gmail.com
-
-
-Configure github repo with jenkins by creating a new pipeline item
-
-Run the build
-
-Configure the pipeline to poll every minute
-
-Add Kaniko stage in Jenkinsfile
-
-```
-        stage('OCI image build') {
-          steps {
-            container('kaniko') {
-              sh '/kaniko/executor -f "$(pwd)/Dockerfile" -c "$(pwd)" --insecure --skip-tls-verify --cache=true --destination=docker.io/chandikas/dso-demo --verbosity=debug' 
-              }
-            }
-          }
-```
-
-3. SCA - OWASP dependency checker, OSS license checker, SBOM using cyclonedx
+2. SCA - OWASP dependency checker, OSS license checker, SBOM using cyclonedx
+==========================================
 
 stage(‘Static Analysis’) {
       parallel {
@@ -275,6 +264,44 @@ stage(‘Static Analysis’) {
           }
       }
 
+SCA: Performs dependency vulnerability scanning using OWASP Dependency Check.
+OSS License checker:  Ensures all dependencies comply with allowed licenses & Useful for avoiding legal issues due to restrictive licenses.
+
+Unit Tests – Ensures code correctness.
+SCA (Software Composition Analysis) – Detects vulnerabilities in dependencies.
+OSS License Checker – Ensures legal compliance of third-party libraries.
+
+
+3. Images build using Kaniko
+====================
+kubectl create secret -n ci docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=chandikas --docker-password=xxxxxx --docker-email=erchandika@gmail.com
+
+
+Configure github repo with jenkins by creating a new pipeline item
+
+Run the build
+
+Configure the pipeline to poll every minute
+
+Add Kaniko stage in Jenkinsfile
+
+```
+        stage('OCI image build') {
+          steps {
+            container('kaniko') {
+              sh '/kaniko/executor -f "$(pwd)/Dockerfile" -c "$(pwd)" --insecure --skip-tls-verify --cache=true --destination=docker.io/chandikas/dso-demo --verbosity=debug' 
+              }
+            }
+          }
+```
+
+Kaniko: 
+No Privileged Access Required
+Designed for Kubernetes
+Builds Images Without a Docker Daemon
+Works on Different Architectures such as amd or arm64
+Lightweight
+
 4. Lint and Scan Docker image
     Lint using dockle - Check Dockerfiles/images for best practices, Image efficiency, and maintainability
       Best practises:
@@ -298,22 +325,41 @@ stage(‘Static Analysis’) {
 
 5. Deploy using ArgoCD
 
+
+Setup ArgoCD server & Login to its dashboard
+==================
 kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
+htpasswd -nbBC 12 "" 'admin@123' | tr -d ':\n'
 
-kubectl -n argocd patch secret argocd-secret -p '{"stringData": {"admin.password": "$2a$12$qurzRi7xk0Q6nvGfve6BlOUW68NcbLo3vvUGYs/q9AzHjwgAnzcTS","admin.passwordMtime": "'$(date +%FT%T%Z)'"}}'
+kubectl -n argocd patch secret argocd-secret -p '{"stringData": {"admin.password": "$2y$12$.MQnKawU3ZPB9GGd2YOsIuJYfW4dvalLaKDACXueWomyXLwPMtaOi","admin.passwordMtime": "'$(date +%FT%T%Z)'"}}'
+
+Login via CLI> argocd login <ARGOCD_SERVER> --username admin --password 'YourNewPassword'
 
 kubectl get all -n argocd
 
 kubectl patch svc argocd-server -n argocd --patch '{"spec": { "type": "NodePort", "ports": [ { "nodePort": 32100, "port": 443, "protocol": "TCP", "targetPort": 8080 } ] } }'
 
+Allow these ports in Security group of worker nodes
 
 kubectl get svc -n argocd
 
 kubectl get nodes -o wide
 
-Browser to  https://NODEIP:32100
+Browser Access to  https://NODEIP:32100
+
+ArgoCD dashboard:
+==========
+Create Project
+  project: devsecops
+Create Applications
+  name: devsecops
+  Namespace: dso-demo
+  Repo URL: https://github.com/CDIT-02/project6-devsecops.git
+  Path: deploy
+
+  
 
 mkdir deploy
 
@@ -328,7 +374,7 @@ git push origin main
 kubectl create ns dev
 kubectl get ns
 
-argocli installation
+argocli installation in local
 =======
 VERSION=$(curl -L -s https://raw.githubusercontent.com/argoproj/argo-cd/stable/VERSION)
 curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/v$VERSION/argocd-linux-amd64
@@ -336,17 +382,18 @@ sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
 rm argocd-linux-amd64
 
 kubectl patch cm -n argocd argocd-cm --patch-file setup/argocd_create_user-patch.yaml
-
 kubectl describe cm -n argocd argocd-cm
 
 argocd admin settings rbac validate --policy-file setup/jenkins.argorbacpolicy.csv
-
 kubectl patch cm -n argocd argocd-rbac-cm --patch-file setup/argocd_user_rbac-patch.yaml
 kubectl describe cm -n argocd argocd-rbac-cm
 
-argocd login  34.205.144.35:31296
+
+
+Validating via argocd cli
+===============
+argocd login  54.87.226.168:32100
 argocd cluster list
-argocd admin settings rbac validate --policy-file setup/jenkins.argorbacpolicy.csv
 
 argocd admin settings rbac can jenkins get applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
 Yes
@@ -355,14 +402,16 @@ No
 argocd admin settings rbac can jenkins sync applications devsecops/dso-demo --policy-file setup/jenkins.argorbacpolicy.csv 
 argocd admin settings rbac can jenkins get projects project6-devsecops --policy-file setup/jenkins.argorbacpolicy.csv 
 
-
-kubectl patch cm -n argocd argocd-rbac-cm --patch-file setup/argocd_user_rbac-patch.yaml
-
-kubectl describe cm -n argocd argocd-rbac-cm
-
+Generate a Token for jenkins user to sync the app via the pipeline
+=========================
 argocd account generate-token --account jenkins
 
-argocd app sync devsecops --insecure --server 44.212.93.103:32100 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTcyOTgzNTA2MSwiaWF0IjoxNzI5ODM1MDYxLCJqdGkiOiJkMDhmMTBhZC1kNzc5LTQ0YWQtYjFmNC1jMjYxMmJkZDhkM2IifQ.Wpc1JpHbnH0OuD-2rOQ-vdExG6eaVnIIfHlU3uI9YvM
+Create jenkins token as a secret in jenkins credentials > token
+
+
+Manually sync:
+=============
+argocd app sync devsecops --insecure --server 54.87.226.168:32100 --auth-token eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJhcmdvY2QiLCJzdWIiOiJqZW5raW5zOmFwaUtleSIsIm5iZiI6MTczODE2NTkyMywiaWF0IjoxNzM4MTY1OTIzLCJqdGkiOiJkNzVhNjg4OS1mZTdiLTRiMzktYjk5NS02NzFmYzlkOTM4MTgifQ.K-vl9vB6DYpuI_eIeIDdyoeqBHLu0YQyTCnzK5NCMYg
 
 SAST - slscan or sonarqube scan
 DAST - OWASP zap
