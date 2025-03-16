@@ -2,8 +2,8 @@ pipeline {
   environment {
         ARGO_SERVER = '54.167.217.143:32100'
         }
-  agent {
-    kubernetes {
+  agent any {
+  
       yamlFile 'build-agent.yaml'
       defaultContainer 'maven'
       idleMinutes 1
@@ -110,4 +110,3 @@ pipeline {
                 }
             }
     }
-  }
