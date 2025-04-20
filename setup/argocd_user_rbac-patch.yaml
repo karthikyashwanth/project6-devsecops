@@ -6,7 +6,7 @@ metadata:
 data:
   policy.default: role:readonly
   policy.csv: |
-    p, role:deployer, applications, get, demo-project/*, allow
-    p, role:deployer, applications, sync, demo-project/*, allow
+    p, role:deployer, applications, get, github-project/*, allow
+    p, role:deployer, applications, sync, github-project/*, allow
     p, role:deployer, projects, get, devsecops, allow
     g, jenkins, role:deployer
