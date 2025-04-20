@@ -18,7 +18,7 @@ spec:
         app: dso-demo
     spec:
       containers:
-      - image: chandikas/dso-demo
+      - image: yeswanthk/devsec-1
         name: dso-demo
         ports:
         - containerPort: 8080
