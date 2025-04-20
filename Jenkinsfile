@@ -72,7 +72,7 @@ pipeline {
         stage('OCI image build') {
           steps {
             container('kaniko') {
-              sh '/kaniko/executor -f "$(pwd)/Dockerfile-nonrootuser" -c "$(pwd)" --insecure --skip-tls-verify --cache=true --destination=docker.io/yeswanthk/devsec --verbosity=debug' 
+              sh '/kaniko/executor -f "$(pwd)/Dockerfile-nonrootuser" -c "$(pwd)" --insecure --skip-tls-verify --cache=true --destination=docker.io/yeswanthk/devsec-1 --verbosity=debug' 
               }
             }
           }
@@ -83,7 +83,7 @@ pipeline {
         stage('Image Linting') {
           steps {
             container('docker-tools') {
-              sh 'dockle docker.io/yeswanthk/devsec'
+              sh 'dockle docker.io/yeswanthk/devsec-1'
                 }
             }
           }
@@ -91,7 +91,7 @@ pipeline {
           steps {
             container('docker-tools') {
               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
-                  sh 'trivy image --exit-code 1 docker.io/yeswanthk/devsec'
+                  sh 'trivy image --exit-code 1 docker.io/yeswanthk/devsec-1'
                       }              
                   }
               }
