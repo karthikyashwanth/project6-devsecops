@@ -3,19 +3,19 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: dso-demo
-  name: dso-demo
+    app: github-project
+  name: github-project
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: dso-demo
+      app: github-project
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: dso-demo
+        app: github-project
     spec:
       containers:
       - image: yeswanthk/devsec-1
