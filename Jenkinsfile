@@ -104,8 +104,8 @@ pipeline {
             }
         steps {
             container('argocli') {
-                sh 'argocd app sync devsecops --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
-                sh 'argocd app wait devsecops --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                sh 'argocd app sync demo-project --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
+                sh 'argocd app wait demo-project --health --timeout 300 --insecure --server $ARGO_SERVER --auth-token $AUTH_TOKEN'
                 }
                 }
             }
